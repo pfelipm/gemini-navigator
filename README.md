@@ -2,6 +2,8 @@
 
 Una extensión de Chrome para generar un índice de la conversación y navegar rápidamente entre las peticiones en la interfaz de Gemini.
 
+![Gemini Navigator](readme-archivos/gemini-navigator.png)
+
 ## Descripción
 
 **Gemini™ Navigator** es una extensión para Google Chrome que mejora la experiencia de uso de Gemini añadiendo un panel lateral con un índice de todas las peticiones (prompts) de la conversación actual. Esto permite saltar directamente a cualquier punto de la conversación con un solo clic, facilitando la navegación en chats largos y complejos.
@@ -11,6 +13,8 @@ La extensión está diseñada para ser intuitiva y se integra de forma nativa en
 ## ¿Cómo funciona?
 
 Al hacer clic en el icono de la extensión, se abre un panel lateral (`Side Panel`) que muestra una lista cronológica inversa de todas las peticiones que has realizado en la conversación activa.
+
+![Gemini Navigator GIF](readme-archivos/gemini-navigator.gif)
 
 - **Navegación Rápida:** Haz clic en cualquier petición del índice para que la ventana principal de Gemini se desplace suavemente hasta esa pregunta, resaltándola visualmente por un momento.
 - **Actualización Inteligente:** Gemini carga las conversaciones más antiguas a medida que te desplazas hacia arriba. La extensión es consciente de este comportamiento. Si haces clic en una de las últimas peticiones del índice (la penúltima o la última), la extensión esperará unos segundos (un tiempo que puedes configurar) para darle tiempo a Gemini a cargar las peticiones anteriores en el DOM.
