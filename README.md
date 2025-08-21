@@ -40,7 +40,7 @@ Al hacer clic en el icono de la extensión, se abre un panel lateral (`Side Pane
 
 Sigue estos pasos para instalar la extensión de forma local:
 
-1.  Descarga o clona este repositorio en tu máquina.
+1.  Descarga y descomprime el [archivo zip](/archive/refs/heads/master.zip) clona este repositorio en tu máquina.
 2.  Abre Google Chrome y ve a la página de extensiones: `chrome://extensions`.
 3.  Activa el **"Modo de desarrollador"** en la esquina superior derecha.
 4.  Haz clic en el botón **"Cargar descomprimida"**.
@@ -50,3 +50,11 @@ Sigue estos pasos para instalar la extensión de forma local:
 ### Nota sobre la publicación en la Chrome Web Store
 
 Puesto que la extensión se basa en el análisis de la estructura del DOM de la aplicación de Gemini, y esta puede cambiar en cualquier momento sin previo aviso, el autor prefiere no publicarla en la Chrome Web Store por el momento. El coste de mantenimiento y la necesidad de adaptarla a cambios frecuentes hacen que sea más práctico distribuirla como un proyecto de código abierto para su instalación manual.
+
+## Créditos
+
+Este proyecto ha sido creado y es mantenido por **[Pablo Felip](https://www.linkedin.com/in/pfelipm/)**.
+
+## Licencia
+
+Este proyecto se distribuye bajo los términos del archivo [LICENSE](/LICENSE).
