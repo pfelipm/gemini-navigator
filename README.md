@@ -40,7 +40,7 @@ Al hacer clic en el icono de la extensión, se abre un panel lateral (`Side Pane
 
 Sigue estos pasos para instalar la extensión de forma local:
 
-1.  Descarga y descomprime el [archivo zip](https://github.com/pfelipm/gemini-navigator/archive/refs/heads/master.zip) clona este repositorio en tu máquina.
+1.  Descarga y descomprime el [archivo zip](https://github.com/pfelipm/gemini-navigator/archive/refs/heads/master.zip) o clona este repositorio en tu máquina.
 2.  Abre Google Chrome y ve a la página de extensiones: `chrome://extensions`.
 3.  Activa el **"Modo de desarrollador"** en la esquina superior derecha.
 4.  Haz clic en el botón **"Cargar descomprimida"**.
