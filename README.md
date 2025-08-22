@@ -1,3 +1,5 @@
+🇬🇧 [English version](./README.en.md)
+
 # Gemini™ Navigator
 
 Una extensión de Chrome para generar un índice de la conversación y navegar rápidamente entre las peticiones en la interfaz de Gemini.
