@@ -18,25 +18,30 @@ Al hacer clic en el icono de la extensión, se abre un panel lateral (`Side Pane
 
 ![Gemini Navigator GIF](readme-archivos/gemini-navigator.gif)
 
-- **Navegación Rápida:** Haz clic en cualquier petición del índice para que la ventana principal de Gemini se desplace suavemente hasta esa pregunta, resaltándola visualmente por un momento.
-- **Actualización Inteligente:** Gemini carga las conversaciones más antiguas a medida que te desplazas hacia arriba. La extensión es consciente de este comportamiento. Si haces clic en una de las últimas peticiones del índice (la penúltima o la última), la extensión esperará unos segundos (un tiempo que puedes configurar) para darle tiempo a Gemini a cargar las peticiones anteriores en el DOM.
-- **Recarga y Sincronización:** Tras la espera, el índice se actualiza automáticamente, añadiendo las nuevas peticiones cargadas con un suave efecto visual para que puedas identificarlas fácilmente. También puedes forzar una recarga manual en cualquier momento con el botón de actualizar.
+- **🚀 Navegación Rápida:** Haz clic en cualquier petición del índice para que la ventana principal de Gemini se desplace suavemente hasta esa pregunta, resaltándola visualmente por un momento.
+- **🔍 Filtrado Instantáneo:** Utiliza el cuadro de búsqueda superior para filtrar las peticiones en tiempo real. Ideal para encontrar rápidamente temas específicos en conversaciones largas sin tener que leer todo el índice.
+- **⚡ Actualización Automática:** ¡Olvídate de recargar! La extensión detecta automáticamente cuando envías un nuevo mensaje a Gemini y actualiza el índice al instante para incluir tu nueva petición.
+- **📜 Carga de Historial:** Gemini carga las conversaciones más antiguas a medida que haces scroll hacia arriba. Si haces clic en una de las últimas peticiones del índice, la extensión esperará inteligentemente unos segundos (configurable) para permitir que Gemini cargue el contenido anterior antes de saltar a él.
+
+## Características Destacadas
+
+*   **Índice Automático:** Genera una lista limpia y legible de tus prompts.
+*   **Búsqueda Integrada:** Filtra por palabras clave para localizar peticiones específicas.
+*   **Diseño Robusto:** Utiliza selectores semánticos (`<user-query>`) para asegurar la compatibilidad con futuras actualizaciones de Gemini.
+*   **Estética Nativa:** Se integra visualmente con el diseño de Google, incluyendo truncado de texto elegante y modo oscuro (automático según el sistema/tema).
+*   **Privacidad:** Todo el procesamiento se realiza localmente en tu navegador. No se envía ningún dato a servidores externos.
 
 ## Detalles Técnicos
 
-- **Manifest V3:** La extensión utiliza la última versión del manifiesto de Chrome.
-- **Side Panel API:** La interfaz principal se muestra utilizando la `Side Panel API` de Chrome para una integración limpia.
-- **Scripting API:** Se inyectan scripts en la página de Gemini de forma segura para analizar el DOM, identificar las peticiones y realizar el scroll. No se modifica el contenido de la página de forma persistente.
+- **Manifest V3:** La extensión utiliza la última versión del manifiesto de Chrome para máxima seguridad y rendimiento.
+- **Side Panel API:** La interfaz principal se muestra utilizando la `Side Panel API` de Chrome.
+- **MutationObserver:** Se utiliza para detectar cambios en el DOM de forma eficiente y reactiva, sin recurrir a intervalos de tiempo (polling).
+- **Scripting API:** Se inyectan scripts seguros para analizar la estructura de la conversación y realizar el scroll.
 - **Permisos:**
-    - `sidePanel`: Para mostrar el panel lateral.
-    - `scripting`: Para ejecutar código en la página de Gemini.
-    - `activeTab`: Para interactuar con la pestaña activa.
-    - `storage`: Para guardar la configuración de retardo (delay) seleccionada por el usuario.
-- **Archivos Clave:**
-    - `manifest.json`: Define la estructura y permisos de la extensión.
-    - `sidepanel.html` / `sidepanel.js` / `sidepanel.css`: Componen la interfaz y la lógica principal del panel lateral.
-    - `background.js`: Gestiona la apertura del panel lateral.
-    - `content.js` / `content.css`: Inyectan los estilos para el resaltado visual en la página de Gemini.
+    - `sidePanel`: Para mostrar la interfaz.
+    - `scripting`: Para interactuar con la página de Gemini.
+    - `activeTab`: Para acceder a la pestaña actual.
+    - `storage`: Para guardar tus preferencias de configuración.
 
 ## Instalación (en modo desarrollador)
 

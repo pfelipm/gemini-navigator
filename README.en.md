@@ -18,25 +18,30 @@ Clicking on the extension icon opens a side panel (`Side Panel`) that displays a
 
 ![Gemini Navigator GIF](readme-archivos/gemini-navigator.gif)
 
-- **Quick Navigation:** Click on any prompt in the index for the main Gemini window to scroll smoothly to that question, highlighting it visually for a moment.
-- **Smart Update:** Gemini loads older conversations as you scroll up. The extension is aware of this behavior. If you click on one of the last prompts in the index (the second to last or the last), the extension will wait a few seconds (a time you can configure) to give Gemini time to load the previous prompts into the DOM.
-- **Reload and Synchronization:** After the wait, the index is automatically updated, adding the newly loaded prompts with a smooth visual effect so you can easily identify them. You can also force a manual reload at any time with the refresh button.
+- **🚀 Quick Navigation:** Click on any prompt in the index for the main Gemini window to scroll smoothly to that question, highlighting it visually for a moment.
+- **🔍 Instant Filtering:** Use the top search box to filter prompts in real-time. Ideal for quickly finding specific topics in long conversations without reading the entire index.
+- **⚡ Auto-Refresh:** Forget about reloading! The extension automatically detects when you send a new message to Gemini and instantly updates the index to include your new prompt.
+- **📜 History Loading:** Gemini loads older conversations as you scroll up. If you click on one of the last prompts in the index, the extension smartly waits a few seconds (configurable) to allow Gemini to load the previous content before jumping to it.
+
+## Key Features
+
+*   **Automatic Indexing:** Generates a clean and readable list of your prompts.
+*   **Integrated Search:** Filter by keywords to locate specific requests.
+*   **Robust Design:** Uses semantic selectors (`<user-query>`) to ensure compatibility with future Gemini updates.
+*   **Native Aesthetics:** Visually integrates with Google's design, including elegant text truncation and dark mode support (automatic based on system/theme).
+*   **Privacy:** All processing is done locally in your browser. No data is sent to external servers.
 
 ## Technical Details
 
-- **Manifest V3:** The extension uses the latest version of the Chrome manifest.
-- **Side Panel API:** The main interface is displayed using the Chrome `Side Panel API` for a clean integration.
-- **Scripting API:** Scripts are safely injected into the Gemini page to analyze the DOM, identify prompts, and perform scrolling. The page content is not permanently modified.
+- **Manifest V3:** The extension uses the latest version of the Chrome manifest for maximum security and performance.
+- **Side Panel API:** The main interface is displayed using the Chrome `Side Panel API`.
+- **MutationObserver:** Used to efficiently and reactively detect DOM changes without relying on polling.
+- **Scripting API:** Scripts are safely injected into the Gemini page to analyze the conversation structure and perform scrolling.
 - **Permissions:**
-    - `sidePanel`: To display the side panel.
-    - `scripting`: To execute code on the Gemini page.
-    - `activeTab`: To interact with the active tab.
-    - `storage`: To save the delay setting selected by the user.
-- **Key Files:**
-    - `manifest.json`: Defines the structure and permissions of the extension.
-    - `sidepanel.html` / `sidepanel.js` / `sidepanel.css`: Make up the interface and main logic of the side panel.
-    - `background.js`: Manages the opening of the side panel.
-    - `content.js` / `content.css`: Inject the styles for the visual highlighting on the Gemini page.
+    - `sidePanel`: To display the interface.
+    - `scripting`: To interact with the Gemini page.
+    - `activeTab`: To access the current tab.
+    - `storage`: To save your settings preferences.
 
 ## Installation (in developer mode)
 
