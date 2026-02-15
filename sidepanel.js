@@ -17,16 +17,23 @@ function getTurnsFromPageWithRetry() {
         function findTurns() {
             attempt++;
             const turns = [];
-            const turnContainers = document.querySelectorAll('div[class*="conversation-container"]');
+            // CAMBIO: Usamos el selector de etiqueta 'user-query', que es semántico y más estable que las clases CSS.
+            // Este componente representa específicamente la entrada del usuario en la conversación.
+            const turnContainers = document.querySelectorAll('user-query');
 
             if (turnContainers.length > 0) {
                 turnContainers.forEach((turnContainer, index) => {
-                    const queryElement = turnContainer.querySelector('user-query .query-text');
+                    // Buscamos el texto dentro del componente. Mantenemos .query-text por ahora,
+                    // pero al estar acotado dentro de <user-query> es mucho más seguro.
+                    const queryElement = turnContainer.querySelector('.query-text');
+                    
                     if (queryElement) {
+                        // Usamos un atributo data propio para rastrear si ya lo hemos procesado
                         const existingId = turnContainer.dataset.geminiHelperId;
                         const turnId = existingId || `gemini-helper-turn-${Date.now()}-${index}`;
 
                         if (!existingId) {
+                           // Asignamos el ID al componente <user-query> directamente
                            turnContainer.id = turnId;
                            turnContainer.dataset.geminiHelperId = turnId;
                         }
@@ -39,7 +46,9 @@ function getTurnsFromPageWithRetry() {
                         // Ahora usamos el texto completo y dejamos que CSS haga el truncado visual con ellipsis
                         const title = fullText.trim();
 
-                        turns.push({ id: turnId, title: title });
+                        if (title) { // Solo añadimos si hay texto
+                            turns.push({ id: turnId, title: title });
+                        }
                     }
                 });
                 resolve(turns);
@@ -51,6 +60,52 @@ function getTurnsFromPageWithRetry() {
         }
         findTurns();
     });
+}
+
+/**
+ * Función para activar la actualización automática mediante MutationObserver.
+ * Vigila si se añaden nuevos elementos <user-query> al DOM.
+ */
+function setupAutoRefresh() {
+    // Evitamos duplicar observers si ya está activo en esta pestaña
+    if (window.geminiNavigatorObserverActive) return;
+
+    const observer = new MutationObserver((mutations) => {
+        let newTurnDetected = false;
+        
+        for (const mutation of mutations) {
+            if (mutation.type === 'childList') {
+                mutation.addedNodes.forEach(node => {
+                    // Verificamos si el nodo añadido es un user-query o contiene uno
+                    if (node.nodeType === 1) { // Element node
+                        if (node.tagName && node.tagName.toLowerCase() === 'user-query') {
+                            newTurnDetected = true;
+                        } else if (node.querySelector && node.querySelector('user-query')) {
+                            newTurnDetected = true;
+                        }
+                    }
+                });
+            }
+        }
+
+        if (newTurnDetected) {
+            // Enviamos mensaje al panel lateral para que se actualice
+            // Usamos un debounce simple para no saturar si hay muchos cambios rápidos
+            if (!window.geminiRefreshTimeout) {
+                window.geminiRefreshTimeout = setTimeout(() => {
+                    chrome.runtime.sendMessage({ action: 'new-turn-detected' });
+                    window.geminiRefreshTimeout = null;
+                }, 1000); // Esperamos 1s para asegurar que el contenido del prompt se ha renderizado
+            }
+        }
+    });
+
+    // Observamos el body para detectar cambios en el árbol
+    // subtree: true es necesario porque el user-query puede estar anidado
+    observer.observe(document.body, { childList: true, subtree: true });
+    
+    window.geminiNavigatorObserverActive = true;
+    console.log('Gemini Navigator: Auto-refresh observer activado.');
 }
 
 /**
@@ -79,7 +134,8 @@ async function buildIndex(scrollToTurnId = null, existingTurnIds = new Set()) {
 
     // Limpiamos el filtro al recargar para evitar confusiones
     const searchInput = document.getElementById('search-input');
-    if (searchInput) searchInput.value = '';
+    // Nota: Mantenemos el filtro si el usuario está buscando, para no interrumpir
+    // if (searchInput) searchInput.value = ''; 
 
     turnList.innerHTML = '';
 
@@ -90,6 +146,13 @@ async function buildIndex(scrollToTurnId = null, existingTurnIds = new Set()) {
             throw new Error("No se pudo encontrar una pestaña activa.");
         }
 
+        // 1. Inyectamos y activamos el Observer si no lo está ya
+        await chrome.scripting.executeScript({
+            target: { tabId: tab.id },
+            function: setupAutoRefresh
+        });
+
+        // 2. Obtenemos los turnos
         const results = await chrome.scripting.executeScript({
             target: { tabId: tab.id },
             function: getTurnsFromPageWithRetry
@@ -150,6 +213,11 @@ async function buildIndex(scrollToTurnId = null, existingTurnIds = new Set()) {
                 turnList.appendChild(li);
             });
 
+            // Si hay un filtro activo, lo reaplicamos
+            if (searchInput && searchInput.value) {
+                searchInput.dispatchEvent(new Event('input'));
+            }
+
             if (scrollToTurnId) {
                 setTimeout(() => {
                     const targetLi = turnList.querySelector(`li[data-turn-id='${scrollToTurnId}']`);
@@ -174,14 +242,22 @@ async function buildIndex(scrollToTurnId = null, existingTurnIds = new Set()) {
     }
 }
 
+// Listener para mensajes desde el script de contenido (Observer)
+chrome.runtime.onMessage.addListener((message, sender, sendResponse) => {
+    if (message.action === 'new-turn-detected') {
+        // Obtenemos los IDs actuales para resaltar solo el nuevo
+        const currentTurnIds = new Set(Array.from(document.querySelectorAll('#turn-list li')).map(item => item.dataset.turnId));
+        buildIndex(null, currentTurnIds);
+    }
+});
+
 // Lógica de filtrado
 function setupSearch() {
     const searchInput = document.getElementById('search-input');
+    const clearButton = document.getElementById('clear-search');
     
-    searchInput.addEventListener('input', (e) => {
-        const searchTerm = e.target.value.toLowerCase();
+    function updateList(searchTerm) {
         const items = turnList.querySelectorAll('li');
-        
         items.forEach(item => {
             const text = item.textContent.toLowerCase();
             if (text.includes(searchTerm)) {
@@ -190,6 +266,26 @@ function setupSearch() {
                 item.style.display = 'none';
             }
         });
+    }
+
+    searchInput.addEventListener('input', (e) => {
+        const searchTerm = e.target.value.toLowerCase();
+        
+        // Mostrar/ocultar botón 'X'
+        if (e.target.value.length > 0) {
+            clearButton.style.display = 'flex';
+        } else {
+            clearButton.style.display = 'none';
+        }
+
+        updateList(searchTerm);
+    });
+
+    clearButton.addEventListener('click', () => {
+        searchInput.value = '';
+        searchInput.focus();
+        clearButton.style.display = 'none';
+        updateList(''); // Restaurar lista completa
     });
 }
 

@@ -60,11 +60,16 @@ header {
     width: 100%;
 }
 
-.search-box input {
+.search-container {
+    position: relative;
     width: 100%;
-    padding: 8px 12px;
+}
+
+.search-container input {
+    width: 100%;
+    padding: 8px 32px 8px 12px; /* Padding derecho mayor para dejar sitio a la X */
     border: 1px solid #dadce0;
-    border-radius: 20px; /* Bordes redondeados estilo Google */
+    border-radius: 20px;
     font-size: 13px;
     outline: none;
     box-sizing: border-box;
@@ -72,10 +77,33 @@ header {
     background-color: #f1f3f4;
 }
 
-.search-box input:focus {
+.search-container input:focus {
     background-color: #ffffff;
     border-color: #1a73e8;
     box-shadow: 0 1px 2px rgba(0,0,0,0.1);
+}
+
+/* Botón de limpiar búsqueda (X) */
+.clear-button {
+    position: absolute;
+    right: 8px;
+    top: 50%;
+    transform: translateY(-50%);
+    background: none;
+    border: none;
+    cursor: pointer;
+    padding: 4px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    color: #5f6368;
+    border-radius: 50%;
+    transition: background-color 0.2s;
+}
+
+.clear-button:hover {
+    background-color: #e8eaed;
+    color: #202124;
 }
 
 #refresh-button {
