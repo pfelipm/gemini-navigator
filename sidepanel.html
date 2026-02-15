@@ -7,23 +7,28 @@
 </head>
 <body>
     <header>
-        <div class="header-content">
-            <h1>Gemini™ Navigator</h1>
-            <p>Índice de la conversación</p>
+        <div class="header-top-row">
+            <div class="header-content">
+                <h1>Gemini™ Navigator</h1>
+                <p>Índice de la conversación</p>
+            </div>
+            <div class="header-right-controls">
+                <div id="delay-selector" class="segmented-control" title="Espera para obtener peticiones anteriores">
+                    <button data-delay="0" class="active">Off</button>
+                    <button data-delay="2000">2s</button>
+                    <button data-delay="3000">3s</button>
+                    <button data-delay="5000">5s</button>
+                </div>
+                <div class="header-controls">
+                    <button id="refresh-button" title="Recargar índice">
+                        <!-- Icono SVG para el botón de recarga -->
+                        <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="23 4 23 10 17 10"></polyline><path d="M20.49 15a9 9 0 1 1-2.12-9.36L23 10"></path></svg>
+                    </button>
+                </div>
+            </div>
         </div>
-        <div class="header-right-controls">
-            <div id="delay-selector" class="segmented-control" title="Espera para obtener peticiones anteriores">
-                <button data-delay="0" class="active">Off</button>
-                <button data-delay="2000">2s</button>
-                <button data-delay="3000">3s</button>
-                <button data-delay="5000">5s</button>
-            </div>
-            <div class="header-controls">
-                <button id="refresh-button" title="Recargar índice">
-                    <!-- Icono SVG para el botón de recarga -->
-                    <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="23 4 23 10 17 10"></polyline><path d="M20.49 15a9 9 0 1 1-2.12-9.36L23 10"></path></svg>
-                </button>
-            </div>
+        <div class="search-box">
+            <input type="text" id="search-input" placeholder="Filtrar peticiones cargadas..." autocomplete="off">
         </div>
     </header>
     <main id="index-container">

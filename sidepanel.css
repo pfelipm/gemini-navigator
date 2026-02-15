@@ -18,12 +18,20 @@ body {
 /* Cabecera fija */
 header {
     display: flex;
-    justify-content: space-between;
-    align-items: center; /* Alinear verticalmente todo el contenido de la cabecera */
+    flex-direction: column; /* Cambiamos a columna para apilar título y buscador */
     border-bottom: 1px solid #dadce0;
-    padding-bottom: 8px;
+    padding-bottom: 12px;
     margin-bottom: 8px;
     flex-shrink: 0; /* Evita que la cabecera se encoja */
+    gap: 12px;
+}
+
+/* Fila superior con Título y Controles */
+.header-top-row {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    width: 100%;
 }
 
 .header-content h1 {
@@ -45,6 +53,29 @@ header {
     align-items: center;
     gap: 12px; /* Espacio entre la botonera y el botón de recarga */
     margin-left: 16px;
+}
+
+/* Estilos para el Buscador */
+.search-box {
+    width: 100%;
+}
+
+.search-box input {
+    width: 100%;
+    padding: 8px 12px;
+    border: 1px solid #dadce0;
+    border-radius: 20px; /* Bordes redondeados estilo Google */
+    font-size: 13px;
+    outline: none;
+    box-sizing: border-box;
+    transition: all 0.2s ease;
+    background-color: #f1f3f4;
+}
+
+.search-box input:focus {
+    background-color: #ffffff;
+    border-color: #1a73e8;
+    box-shadow: 0 1px 2px rgba(0,0,0,0.1);
 }
 
 #refresh-button {
@@ -158,6 +189,11 @@ header {
     transition: background-color 0.2s ease, box-shadow 0.2s ease;
     font-size: 14px;
     line-height: 1.4;
+
+    /* Nuevo: Truncado de texto con CSS */
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
 }
 
 #turn-list li:hover {

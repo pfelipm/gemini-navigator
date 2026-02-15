@@ -36,9 +36,10 @@ function getTurnsFromPageWithRetry() {
                         clone.querySelectorAll('.cdk-visually-hidden').forEach(el => el.remove());
                         const fullText = clone.textContent || '';
                         
-                        const title = fullText.split(/\s+/).slice(0, 30).join(' ') + (fullText.split(/\s+/).length > 30 ? '...' : '');
+                        // Ahora usamos el texto completo y dejamos que CSS haga el truncado visual con ellipsis
+                        const title = fullText.trim();
 
-                        turns.push({ id: turnId, title: title.trim() });
+                        turns.push({ id: turnId, title: title });
                     }
                 });
                 resolve(turns);
@@ -76,6 +77,10 @@ async function buildIndex(scrollToTurnId = null, existingTurnIds = new Set()) {
     refreshButton.title = 'Cargando peticiones...';
     loadingMessage.style.display = 'none';
 
+    // Limpiamos el filtro al recargar para evitar confusiones
+    const searchInput = document.getElementById('search-input');
+    if (searchInput) searchInput.value = '';
+
     turnList.innerHTML = '';
 
     try {
@@ -97,7 +102,7 @@ async function buildIndex(scrollToTurnId = null, existingTurnIds = new Set()) {
             turns.forEach((turn, index) => {
                 const li = document.createElement('li');
                 li.textContent = turn.title;
-                li.title = `Saltar a: "${turn.title}"`;
+                li.title = turn.title; // Tooltip con el texto completo
                 li.dataset.turnId = turn.id;
 
                 if (existingTurnIds.size > 0 && !existingTurnIds.has(turn.id)) {
@@ -169,6 +174,25 @@ async function buildIndex(scrollToTurnId = null, existingTurnIds = new Set()) {
     }
 }
 
+// Lógica de filtrado
+function setupSearch() {
+    const searchInput = document.getElementById('search-input');
+    
+    searchInput.addEventListener('input', (e) => {
+        const searchTerm = e.target.value.toLowerCase();
+        const items = turnList.querySelectorAll('li');
+        
+        items.forEach(item => {
+            const text = item.textContent.toLowerCase();
+            if (text.includes(searchTerm)) {
+                item.style.display = '';
+            } else {
+                item.style.display = 'none';
+            }
+        });
+    });
+}
+
 // Lógica para gestionar el control segmentado y el almacenamiento
 function setupDelaySelector() {
     chrome.storage.local.get(['selectedDelay'], (result) => {
@@ -193,6 +217,7 @@ function setupDelaySelector() {
 
 document.addEventListener('DOMContentLoaded', () => {
     setupDelaySelector();
+    setupSearch(); // Inicializamos el buscador
     buildIndex();
 });
 refreshButton.addEventListener('click', () => buildIndex());
