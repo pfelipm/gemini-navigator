@@ -134,10 +134,10 @@ async function buildIndex(scrollToTurnId = null, existingTurnIds = new Set()) {
 
     // Limpiamos el filtro al recargar para evitar confusiones
     const searchInput = document.getElementById('search-input');
-    // Nota: Mantenemos el filtro si el usuario está buscando, para no interrumpir
-    // if (searchInput) searchInput.value = ''; 
+    const listHeaderContainer = document.getElementById('list-header-container');
 
     turnList.innerHTML = '';
+    listHeaderContainer.innerHTML = '';
 
     try {
         const [tab] = await chrome.tabs.query({ active: true, lastFocusedWindow: true });
@@ -161,6 +161,12 @@ async function buildIndex(scrollToTurnId = null, existingTurnIds = new Set()) {
         const turns = results[0].result;
 
         if (turns && turns.length > 0) {
+            // Añadimos la cabecera visual de "Recientes"
+            const header = document.createElement('div');
+            header.className = 'list-header';
+            header.textContent = 'Recientes';
+            listHeaderContainer.appendChild(header);
+
             turns.reverse();
             turns.forEach((turn, index) => {
                 const li = document.createElement('li');
@@ -255,17 +261,26 @@ chrome.runtime.onMessage.addListener((message, sender, sendResponse) => {
 function setupSearch() {
     const searchInput = document.getElementById('search-input');
     const clearButton = document.getElementById('clear-search');
+    const listHeaderContainer = document.getElementById('list-header-container');
     
     function updateList(searchTerm) {
         const items = turnList.querySelectorAll('li');
+        let visibleCount = 0;
+
         items.forEach(item => {
             const text = item.textContent.toLowerCase();
             if (text.includes(searchTerm)) {
                 item.style.display = '';
+                visibleCount++;
             } else {
                 item.style.display = 'none';
             }
         });
+
+        // Ocultar cabecera "Recientes" si no hay resultados o si estamos filtrando (opcional)
+        if (listHeaderContainer.firstChild) {
+            listHeaderContainer.firstChild.style.display = (visibleCount > 0) ? '' : 'none';
+        }
     }
 
     searchInput.addEventListener('input', (e) => {

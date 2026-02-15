@@ -200,6 +200,27 @@ header {
     display: none; /* Oculto por defecto */
 }
 
+/* Cabecera de la lista (Recientes) */
+.list-header {
+    font-size: 10px;
+    font-weight: 700;
+    color: #9aa0a6;
+    text-transform: uppercase;
+    letter-spacing: 0.8px;
+    padding: 8px 12px 4px 12px;
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    user-select: none;
+}
+
+.list-header::after {
+    content: '';
+    flex-grow: 1;
+    height: 1px;
+    background-color: #dadce0;
+}
+
 /* Lista de turnos */
 #turn-list {
     list-style: none;
