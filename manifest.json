@@ -1,7 +1,7 @@
 {
   "manifest_version": 3,
   "name": "Gemini™ Navigator",
-  "version": "1.0",
+  "version": "1.1",
   "description": "Genera un índice de la conversación para una navegación rápida en Gemini.",
   "permissions": [
     "sidePanel",
