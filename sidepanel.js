@@ -31,7 +31,11 @@ function getTurnsFromPageWithRetry() {
                            turnContainer.dataset.geminiHelperId = turnId;
                         }
 
-                        const fullText = queryElement.textContent || '';
+                        // Fix: Clonar y limpiar elementos ocultos (como "You said") antes de extraer texto
+                        const clone = queryElement.cloneNode(true);
+                        clone.querySelectorAll('.cdk-visually-hidden').forEach(el => el.remove());
+                        const fullText = clone.textContent || '';
+                        
                         const title = fullText.split(/\s+/).slice(0, 30).join(' ') + (fullText.split(/\s+/).length > 30 ? '...' : '');
 
                         turns.push({ id: turnId, title: title.trim() });
