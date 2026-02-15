@@ -4,7 +4,7 @@
 
 A Chrome extension to generate a conversation index and quickly navigate between prompts in the Gemini interface.
 
-![Gemini Navigator](readme-archivos/gemini-navigator.png)
+![Gemini Navigator](readme-archivos/gamini-navigator1.1.png)
 
 ## Description
 

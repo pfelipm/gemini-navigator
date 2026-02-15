@@ -4,7 +4,7 @@
 
 Una extensión de Chrome para generar un índice de la conversación y navegar rápidamente entre las peticiones en la interfaz de Gemini.
 
-![Gemini Navigator](readme-archivos/gemini-navigator.png)
+![Gemini Navigator](readme-archivos/gamini-navigator1.1.png)
 
 ## Descripción
 
