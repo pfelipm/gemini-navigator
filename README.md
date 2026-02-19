@@ -18,30 +18,31 @@ Al hacer clic en el icono de la extensión, se abre un panel lateral (`Side Pane
 
 ![Gemini Navigator GIF](readme-archivos/gemini-navigator1.1.gif)
 
-- **🚀 Navegación Rápida:** Haz clic en cualquier petición del índice para que la ventana principal de Gemini se desplace suavemente hasta esa pregunta, resaltándola visualmente por un momento.
-- **🔍 Filtrado Instantáneo:** Utiliza el cuadro de búsqueda superior para filtrar las peticiones en tiempo real. Ideal para encontrar rápidamente temas específicos en conversaciones largas sin tener que leer todo el índice.
-- **⚡ Actualización Automática:** ¡Olvídate de recargar! La extensión detecta automáticamente cuando envías un nuevo mensaje a Gemini y actualiza el índice al instante para incluir tu nueva petición.
-- **📜 Carga de Historial:** Gemini carga las conversaciones más antiguas a medida que haces scroll hacia arriba. Si haces clic en una de las últimas peticiones del índice, la extensión esperará inteligentemente unos segundos (configurable) para permitir que Gemini cargue el contenido anterior antes de saltar a él.
+- **🚀 Navegación rápida:** haz clic en cualquier petición del índice para que la ventana principal de Gemini se desplace suavemente hasta esa pregunta, resaltándola visualmente por un momento.
+- **🔍 Filtrado instantáneo:** utiliza el cuadro de búsqueda superior para filtrar las peticiones en tiempo real. Ideal para encontrar rápidamente temas específicos en conversaciones largas sin tener que leer todo el índice.
+- **⚡ Actualización automática:** ¡olvídate de recargar! La extensión detecta automáticamente cuando envías un nuevo mensaje a Gemini y actualiza el índice al instante para incluir tu nueva petición.
+- **📜 Carga de historial:** Gemini carga las conversaciones más antiguas a medida que haces scroll hacia arriba. Si haces clic en una de las últimas peticiones del índice, la extensión esperará inteligentemente unos segundos (configurable) para permitir que Gemini cargue el contenido anterior antes de saltar a él.
 
-## Características Destacadas
+## Características destacadas
 
-*   **Índice Automático:** Genera una lista limpia y legible de tus prompts.
-*   **Búsqueda Integrada:** Filtra por palabras clave para localizar peticiones específicas.
-*   **Diseño Robusto:** Utiliza selectores semánticos (`<user-query>`) para asegurar la compatibilidad con futuras actualizaciones de Gemini.
-*   **Estética Nativa:** Se integra visualmente con el diseño de Google, incluyendo truncado de texto elegante y modo oscuro (automático según el sistema/tema).
-*   **Privacidad:** Todo el procesamiento se realiza localmente en tu navegador. No se envía ningún dato a servidores externos.
+*   **Índice automático:** genera una lista limpia y legible de tus prompts.
+*   **Búsqueda integrada:** filtra por palabras clave para localizar peticiones específicas.
+*   **Diseño robusto:** utiliza selectores semánticos (`<user-query>`) para asegurar la compatibilidad con futuras actualizaciones de Gemini.
+*   **Estética nativa:** se integra visualmente con el diseño de Google, incluyendo truncado de texto elegante y modo oscuro (automático según el sistema/tema).
+*   **Privacidad:** todo el procesamiento se realiza localmente en tu navegador. No se envía ningún dato a servidores externos.
 
-## Detalles Técnicos
+## Detalles técnicos
 
-- **Manifest V3:** La extensión utiliza la última versión del manifiesto de Chrome para máxima seguridad y rendimiento.
-- **Side Panel API:** La interfaz principal se muestra utilizando la `Side Panel API` de Chrome.
-- **MutationObserver:** Se utiliza para detectar cambios en el DOM de forma eficiente y reactiva, sin recurrir a intervalos de tiempo (polling).
-- **Scripting API:** Se inyectan scripts seguros para analizar la estructura de la conversación y realizar el scroll.
+- **Manifest V3:** la extensión utiliza la última versión del manifiesto de Chrome para máxima seguridad y rendimiento.
+- **Side Panel API:** la interfaz principal se muestra utilizando la `Side Panel API` de Chrome.
+- **MutationObserver:** se utiliza para detectar cambios en el DOM de forma eficiente y reactiva, sin recurrir a intervalos de tiempo (polling).
+- **Web Animations API (WAAPI):** se emplea para gestionar el resaltado visual de los turnos de forma fluida y profesional, asegurando un desvanecimiento suave que no interfiere con los estilos internos de Gemini.
+- **Scripting API:** se inyectan scripts seguros para analizar la estructura de la conversación y realizar el scroll.
 - **Permisos:**
-    - `sidePanel`: Para mostrar la interfaz.
-    - `scripting`: Para interactuar con la página de Gemini.
-    - `activeTab`: Para acceder a la pestaña actual.
-    - `storage`: Para guardar tus preferencias de configuración.
+    - `sidePanel`: para mostrar la interfaz.
+    - `scripting`: para interactuar con la página de Gemini.
+    - `activeTab`: para acceder a la pestaña actual.
+    - `storage`: para guardar tus preferencias de configuración.
 
 ## Instalación (en modo desarrollador)
 
