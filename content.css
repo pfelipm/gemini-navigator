@@ -1,15 +1,12 @@
 /* Clase para marcar los turnos identificados (opcional, para depuración) */
 .gemini-helper-turn-marker {
-    /* Podríamos añadir un borde sutil si quisiéramos ver qué se ha identificado */
     /* border: 1px dashed red; */
 }
 
-/* Estilo para resaltar el turno al que se salta */
+/* Estructura del resaltado (sin colores, gestionados por JS) */
 .gemini-helper-highlight {
-    transition: all 0.4s cubic-bezier(0.4, 0, 0.2, 1);
-    background-color: rgba(26, 115, 232, 0.08) !important;
-    border-left: 6px solid #1a73e8 !important;
-    box-shadow: 0 4px 12px rgba(0,0,0,0.1) !important;
-    border-radius: 0 12px 12px 0; /* Redondeamos solo el lado derecho para que el borde izquierdo sea recto */
-    margin-left: -6px; /* Compensa el ancho del borde para no mover el contenido */
+    border-radius: 0 12px 12px 0 !important;
+    position: relative !important;
+    z-index: 10 !important;
+    /* Evitamos declarar background o box-shadow aquí para que mande la animación de JS */
 }

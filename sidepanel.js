@@ -116,10 +116,40 @@ function scrollToTurnAndHighlight(turnId) {
     if (element) {
         element.scrollIntoView({ behavior: 'smooth', block: 'start' });
 
+        // Aplicamos la estructura base (radio de borde, etc.)
         element.classList.add('gemini-helper-highlight');
+
+        // Aplicamos la animación mediante Web Animations API (WAAPI)
+        // Este método es mucho más robusto en aplicaciones complejas como Gemini.
+        const animation = element.animate([
+            { 
+                backgroundColor: 'rgba(162, 125, 255, 0)', 
+                boxShadow: '-10px 0 0 0 transparent, 0 0 0 0 transparent' 
+            },
+            { 
+                backgroundColor: 'rgba(162, 125, 255, 0.15)', 
+                boxShadow: '-10px 0 0 0 #8E75FF, 0 0 0 2px rgba(162, 125, 255, 0.2)',
+                offset: 0.1 // Pulso rápido inicial
+            },
+            { 
+                backgroundColor: 'rgba(162, 125, 255, 0.12)', 
+                boxShadow: '-10px 0 0 0 #8E75FF, 0 0 0 2px rgba(162, 125, 255, 0.2)',
+                offset: 0.8 // Mantener hasta el 80% del tiempo (2.4s)
+            },
+            { 
+                backgroundColor: 'rgba(162, 125, 255, 0)', 
+                boxShadow: '-10px 0 0 0 transparent, 0 0 0 0 transparent' 
+            }
+        ], {
+            duration: 3000,
+            easing: 'ease-in-out',
+            fill: 'forwards'
+        });
+
+        // Limpiamos la clase cuando termine la animación
         setTimeout(() => {
             element.classList.remove('gemini-helper-highlight');
-        }, 3000);
+        }, 3100);
     }
 }
 
