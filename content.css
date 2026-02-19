@@ -6,7 +6,10 @@
 
 /* Estilo para resaltar el turno al que se salta */
 .gemini-helper-highlight {
-    transition: all 0.5s ease-in-out;
-    box-shadow: 0 0 0 3px rgba(26, 115, 232, 0.4) !important;
-    border-radius: 12px;
+    transition: all 0.4s cubic-bezier(0.4, 0, 0.2, 1);
+    background-color: rgba(26, 115, 232, 0.08) !important;
+    border-left: 6px solid #1a73e8 !important;
+    box-shadow: 0 4px 12px rgba(0,0,0,0.1) !important;
+    border-radius: 0 12px 12px 0; /* Redondeamos solo el lado derecho para que el borde izquierdo sea recto */
+    margin-left: -6px; /* Compensa el ancho del borde para no mover el contenido */
 }

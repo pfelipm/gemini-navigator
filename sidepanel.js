@@ -119,7 +119,7 @@ function scrollToTurnAndHighlight(turnId) {
         element.classList.add('gemini-helper-highlight');
         setTimeout(() => {
             element.classList.remove('gemini-helper-highlight');
-        }, 2000);
+        }, 3000);
     }
 }
 
