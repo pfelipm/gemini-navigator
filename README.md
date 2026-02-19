@@ -16,7 +16,7 @@ La extensión está diseñada para ser intuitiva y se integra de forma nativa en
 
 Al hacer clic en el icono de la extensión, se abre un panel lateral (`Side Panel`) que muestra una lista cronológica inversa de todas las peticiones que has realizado en la conversación activa.
 
-![Gemini Navigator GIF](readme-archivos/gemini-navigator.gif)
+![Gemini Navigator GIF](readme-archivos/gemini-navigator1.1.gif)
 
 - **🚀 Navegación Rápida:** Haz clic en cualquier petición del índice para que la ventana principal de Gemini se desplace suavemente hasta esa pregunta, resaltándola visualmente por un momento.
 - **🔍 Filtrado Instantáneo:** Utiliza el cuadro de búsqueda superior para filtrar las peticiones en tiempo real. Ideal para encontrar rápidamente temas específicos en conversaciones largas sin tener que leer todo el índice.

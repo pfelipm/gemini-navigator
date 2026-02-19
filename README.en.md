@@ -16,7 +16,7 @@ The extension is designed to be intuitive and integrates natively into the Gemin
 
 Clicking on the extension icon opens a side panel (`Side Panel`) that displays a reverse chronological list of all the prompts you have made in the active conversation.
 
-![Gemini Navigator GIF](readme-archivos/gemini-navigator.gif)
+![Gemini Navigator GIF](readme-archivos/gemini-navigator1.1.gif)
 
 - **🚀 Quick Navigation:** Click on any prompt in the index for the main Gemini window to scroll smoothly to that question, highlighting it visually for a moment.
 - **🔍 Instant Filtering:** Use the top search box to filter prompts in real-time. Ideal for quickly finding specific topics in long conversations without reading the entire index.
