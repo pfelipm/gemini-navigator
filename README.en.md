@@ -19,16 +19,16 @@ Clicking on the extension icon opens a side panel (`Side Panel`) that displays a
 ![Gemini Navigator GIF](readme-archivos/gemini-navigator1.1.gif)
 
 - **🚀 Quick Navigation:** Click on any prompt in the index for the main Gemini window to scroll smoothly to that question, highlighting it visually for a moment.
-- **🔍 Instant Filtering:** Use the top search box to filter prompts in real-time. Ideal for quickly finding specific topics in long conversations without reading the entire index.
+- **🔍 Instant Filtering:** Use the top search box to filter prompts in real-time. Includes a quick-clear button and is ideal for finding specific topics in long conversations without reading the entire index.
 - **⚡ Auto-Refresh:** Forget about reloading! The extension automatically detects when you send a new message to Gemini and instantly updates the index to include your new prompt.
-- **📜 History Loading:** Gemini loads older conversations as you scroll up. If you click on one of the last prompts in the index, the extension smartly waits a few seconds (configurable) to allow Gemini to load the previous content before jumping to it.
+- **📜 History Loading:** Gemini loads older conversations as you scroll up. If you click on one of the last prompts in the index, the extension smartly waits a few seconds (3s by default) to allow Gemini to load the previous content before jumping to it.
 
 ## Key Features
 
 *   **Automatic Indexing:** Generates a clean and readable list of your prompts.
-*   **Integrated Search:** Filter by keywords to locate specific requests.
-*   **Robust Design:** Uses semantic selectors (`<user-query>`) to ensure compatibility with future Gemini updates.
-*   **Native Aesthetics:** Visually integrates with Google's design, including elegant text truncation and dark mode support (automatic based on system/theme).
+*   **Integrated Search:** Filter by keywords with a quick-clear function.
+*   **Robust Design:** Uses semantic selectors (`<user-query>`) and reverse-index anchoring to ensure scroll stability and future compatibility.
+*   **Native Aesthetics:** Visually integrates with Google's design, including professional lavender highlighting and dark mode (natively synced with Gemini's application theme).
 *   **Privacy:** All processing is done locally in your browser. No data is sent to external servers.
 
 ## Technical Details

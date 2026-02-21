@@ -19,16 +19,16 @@ Al hacer clic en el icono de la extensión, se abre un panel lateral (`Side Pane
 ![Gemini Navigator GIF](readme-archivos/gemini-navigator1.1.gif)
 
 - **🚀 Navegación rápida:** haz clic en cualquier petición del índice para que la ventana principal de Gemini se desplace suavemente hasta esa pregunta, resaltándola visualmente por un momento.
-- **🔍 Filtrado instantáneo:** utiliza el cuadro de búsqueda superior para filtrar las peticiones en tiempo real. Ideal para encontrar rápidamente temas específicos en conversaciones largas sin tener que leer todo el índice.
+- **🔍 Filtrado instantáneo:** utiliza el cuadro de búsqueda superior para filtrar las peticiones en tiempo real. Incluye un botón de borrado rápido y es ideal para encontrar temas específicos en conversaciones largas sin tener que leer todo el índice.
 - **⚡ Actualización automática:** ¡olvídate de recargar! La extensión detecta automáticamente cuando envías un nuevo mensaje a Gemini y actualiza el índice al instante para incluir tu nueva petición.
-- **📜 Carga de historial:** Gemini carga las conversaciones más antiguas a medida que haces scroll hacia arriba. Si haces clic en una de las últimas peticiones del índice, la extensión esperará inteligentemente unos segundos (configurable) para permitir que Gemini cargue el contenido anterior antes de saltar a él.
+- **📜 Carga de historial:** Gemini carga las conversaciones más antiguas a medida que haces scroll hacia arriba. Si haces clic en una de las últimas peticiones del índice, la extensión esperará inteligentemente unos segundos (3s por defecto) para permitir que Gemini cargue el contenido anterior antes de saltar a él.
 
 ## Características destacadas
 
 *   **Índice automático:** genera una lista limpia y legible de tus prompts.
-*   **Búsqueda integrada:** filtra por palabras clave para localizar peticiones específicas.
-*   **Diseño robusto:** utiliza selectores semánticos (`<user-query>`) para asegurar la compatibilidad con futuras actualizaciones de Gemini.
-*   **Estética nativa:** se integra visualmente con el diseño de Google, incluyendo truncado de texto elegante y modo oscuro (automático según el sistema/tema).
+*   **Búsqueda integrada:** filtra por palabras clave con función de limpieza rápida.
+*   **Diseño robusto:** utiliza selectores semánticos (`<user-query>`) y anclaje por índices inversos para asegurar la estabilidad del scroll y la compatibilidad futura.
+*   **Estética nativa:** se integra visualmente con el diseño de Google, incluyendo un resaltado lavanda profesional y modo oscuro (sincronizado nativamente con el tema de la aplicación Gemini).
 *   **Privacidad:** todo el procesamiento se realiza localmente en tu navegador. No se envía ningún dato a servidores externos.
 
 ## Detalles técnicos
