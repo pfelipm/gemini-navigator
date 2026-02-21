@@ -226,6 +226,7 @@ header {
 #index-container {
     flex-grow: 1;
     overflow-y: auto;
+    position: relative; /* Crítico para el cálculo de offsetTop */
 }
 
 /* Mensaje de carga o error (oculto por defecto) */

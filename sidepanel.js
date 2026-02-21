@@ -5,6 +5,8 @@ const loadingMessage = document.getElementById('loading-message');
 const refreshButton = document.getElementById('refresh-button');
 const delaySelector = document.getElementById('delay-selector');
 
+let isBuilding = false; // Semáforo para evitar reconstrucciones duplicadas simultáneas
+
 /**
  * Esta es la función que se inyectará y ejecutará en la página de Gemini.
  */
@@ -59,29 +61,14 @@ function getTurnsFromPageWithRetry() {
 function setupAutoRefresh() {
     if (window.geminiNavigatorObserverActive) return;
 
-    // Detectar tema inicial
-    const isDark = document.body.classList.contains('dark-theme');
-    chrome.runtime.sendMessage({ action: 'theme-changed', theme: isDark ? 'dark' : 'light' });
-
     const observer = new MutationObserver((mutations) => {
         let newTurnDetected = false;
         let themeChanged = false;
         
         for (const mutation of mutations) {
-            // Detección de nuevos mensajes
-            if (mutation.type === 'childList') {
-                mutation.addedNodes.forEach(node => {
-                    if (node.nodeType === 1) {
-                        if (node.tagName && node.tagName.toLowerCase() === 'user-query') {
-                            newTurnDetected = true;
-                        } else if (node.querySelector && node.querySelector('user-query')) {
-                            newTurnDetected = true;
-                        }
-                    }
-                });
+            if (mutation.type === 'childList' && mutation.addedNodes.length > 0) {
+                newTurnDetected = true;
             }
-            
-            // Detección de cambio de tema (clase en el body)
             if (mutation.type === 'attributes' && mutation.attributeName === 'class' && mutation.target === document.body) {
                 themeChanged = true;
             }
@@ -105,7 +92,6 @@ function setupAutoRefresh() {
     observer.observe(document.body, { childList: true, subtree: true, attributes: true, attributeFilter: ['class'] });
     
     window.geminiNavigatorObserverActive = true;
-    console.log('Gemini Navigator: Observer activado (mensajes + tema).');
 }
 
 /**
@@ -136,37 +122,29 @@ function scrollToTurnAndHighlight(turnId) {
 
 /**
  * Construye el índice utilizando la API de scripting.
+ * @param {number} targetIndexFromEnd - Índice visual del elemento a scrollear.
  */
-async function buildIndex(scrollToTurnId = null, existingTurnIds = new Set()) {
+async function buildIndex(targetIndexFromEnd = null, existingTurnIds = new Set()) {
+    if (isBuilding && targetIndexFromEnd === null) return;
+    isBuilding = true;
+
     refreshButton.disabled = true;
     refreshButton.classList.add('loading-in-progress');
-    refreshButton.title = 'Cargando peticiones...';
     loadingMessage.style.display = 'none';
 
     const searchInput = document.getElementById('search-input');
     const listHeaderContainer = document.getElementById('list-header-container');
 
-    turnList.innerHTML = '';
-    listHeaderContainer.innerHTML = '';
-
     try {
         const [tab] = await chrome.tabs.query({ active: true, lastFocusedWindow: true });
+        if (!tab || !tab.id) throw new Error("Sin pestaña activa");
 
-        if (!tab || !tab.id) {
-            throw new Error("No se pudo encontrar una pestaña activa.");
-        }
-
-        await chrome.scripting.executeScript({
-            target: { tabId: tab.id },
-            function: setupAutoRefresh
-        });
-
-        const results = await chrome.scripting.executeScript({
-            target: { tabId: tab.id },
-            function: getTurnsFromPageWithRetry
-        });
-
+        await chrome.scripting.executeScript({ target: { tabId: tab.id }, function: setupAutoRefresh });
+        const results = await chrome.scripting.executeScript({ target: { tabId: tab.id }, function: getTurnsFromPageWithRetry });
         const turns = results[0].result;
+
+        turnList.innerHTML = '';
+        listHeaderContainer.innerHTML = '';
 
         if (turns && turns.length > 0) {
             const header = document.createElement('div');
@@ -174,43 +152,38 @@ async function buildIndex(scrollToTurnId = null, existingTurnIds = new Set()) {
             header.textContent = 'Recientes';
             listHeaderContainer.appendChild(header);
 
-            turns.reverse();
-            turns.forEach((turn, index) => {
+            const visualTurns = [...turns].reverse();
+            visualTurns.forEach((turn, index) => {
                 const li = document.createElement('li');
                 li.textContent = turn.title;
                 li.title = turn.title;
                 li.dataset.turnId = turn.id;
+                li.dataset.indexFromEnd = index;
 
                 if (existingTurnIds.size > 0 && !existingTurnIds.has(turn.id)) {
-                    li.classList.add('new-turn-highlight');
+                    setTimeout(() => {
+                        li.animate([
+                            { backgroundColor: 'rgba(177, 151, 252, 0.25)', borderColor: '#B197FC' },
+                            { backgroundColor: 'rgba(177, 151, 252, 0.25)', borderColor: '#B197FC', offset: 0.25 },
+                            { backgroundColor: 'var(--card-bg)', borderColor: 'var(--border-color)' }
+                        ], { duration: 6000, easing: 'ease-out', fill: 'forwards' });
+                    }, 200);
                 }
 
-                if (index >= turns.length - 2 && turns.length > 1) {
+                if (index >= visualTurns.length - 2 && visualTurns.length > 1) {
                     li.addEventListener('click', async () => {
-                        const selectedDelay = parseInt(delaySelector.querySelector('.active').dataset.delay, 10);
-                        if (selectedDelay === 0) {
-                            chrome.scripting.executeScript({
-                                target: { tabId: tab.id },
-                                function: scrollToTurnAndHighlight,
-                                args: [turn.id]
-                            });
-                            return;
-                        }
-
-                        await chrome.scripting.executeScript({
-                            target: { tabId: tab.id },
-                            function: scrollToTurnAndHighlight,
-                            args: [turn.id]
-                        });
-
+                        const clickedIndexFromEnd = index;
+                        await chrome.scripting.executeScript({ target: { tabId: tab.id }, function: scrollToTurnAndHighlight, args: [turn.id] });
+                        
                         refreshButton.disabled = true;
                         refreshButton.classList.add('loading-in-progress');
-                        refreshButton.title = 'Cargando peticiones más antiguas...';
-
-                        await new Promise(resolve => setTimeout(resolve, selectedDelay));
-
+                        
+                        isBuilding = true; 
+                        await new Promise(resolve => setTimeout(resolve, parseInt(delaySelector.querySelector('.active').dataset.delay, 10)));
+                        
                         const currentTurnIds = new Set(Array.from(turnList.querySelectorAll('li')).map(item => item.dataset.turnId));
-                        buildIndex(turn.id, currentTurnIds);
+                        isBuilding = false; 
+                        buildIndex(clickedIndexFromEnd, currentTurnIds);
                     });
                 } else {
                     li.addEventListener('click', () => {
@@ -221,41 +194,35 @@ async function buildIndex(scrollToTurnId = null, existingTurnIds = new Set()) {
                         });
                     });
                 }
-
                 turnList.appendChild(li);
             });
 
-            if (searchInput && searchInput.value) {
-                searchInput.dispatchEvent(new Event('input'));
-            }
+            if (searchInput && searchInput.value) searchInput.dispatchEvent(new Event('input'));
 
-            if (scrollToTurnId) {
-                setTimeout(() => {
-                    const targetLi = turnList.querySelector(`li[data-turn-id='${scrollToTurnId}']`);
-                    if (targetLi) {
-                        targetLi.scrollIntoView({ behavior: 'auto', block: 'start' });
-                    }
-                }, 100);
+            if (targetIndexFromEnd !== null) {
+                const targetLi = turnList.querySelector(`li[data-index-from-end="${targetIndexFromEnd}"]`);
+                const container = document.getElementById('index-container');
+                if (targetLi && container) {
+                    requestAnimationFrame(() => {
+                        requestAnimationFrame(() => {
+                            container.scrollTop = targetLi.offsetTop - 8;
+                        });
+                    });
+                }
             }
-
-        } else {
-            loadingMessage.textContent = 'No se encontraron peticiones en la conversación.';
-            loadingMessage.style.display = 'block';
         }
     } catch (error) {
-        console.error("Gemini Helper: Error detallado al construir el índice.", error);
-        loadingMessage.textContent = 'Error: No se pudo analizar la página. Asegúrate de estar en gemini.google.com.';
-        loadingMessage.style.display = 'block';
+        console.error("Error buildIndex:", error);
     } finally {
         refreshButton.disabled = false;
         refreshButton.classList.remove('loading-in-progress');
-        refreshButton.title = 'Recargar índice';
+        setTimeout(() => { isBuilding = false; }, 500);
     }
 }
 
-// Listener para mensajes desde el script de contenido (Observer)
 chrome.runtime.onMessage.addListener((message, sender, sendResponse) => {
     if (message.action === 'new-turn-detected') {
+        if (isBuilding) return;
         const currentTurnIds = new Set(Array.from(document.querySelectorAll('#turn-list li')).map(item => item.dataset.turnId));
         buildIndex(null, currentTurnIds);
     } else if (message.action === 'theme-changed') {
@@ -267,7 +234,6 @@ chrome.runtime.onMessage.addListener((message, sender, sendResponse) => {
     }
 });
 
-// Lógica de filtrado
 function setupSearch() {
     const searchInput = document.getElementById('search-input');
     const clearButton = document.getElementById('clear-search');
@@ -276,32 +242,17 @@ function setupSearch() {
     function updateList(searchTerm) {
         const items = turnList.querySelectorAll('li');
         let visibleCount = 0;
-
         items.forEach(item => {
-            const text = item.textContent.toLowerCase();
-            if (text.includes(searchTerm)) {
-                item.style.display = '';
-                visibleCount++;
-            } else {
-                item.style.display = 'none';
-            }
+            const match = item.textContent.toLowerCase().includes(searchTerm);
+            item.style.display = match ? '' : 'none';
+            if (match) visibleCount++;
         });
-
-        if (listHeaderContainer.firstChild) {
-            listHeaderContainer.firstChild.style.display = (visibleCount > 0) ? '' : 'none';
-        }
+        if (listHeaderContainer.firstChild) listHeaderContainer.firstChild.style.display = visibleCount > 0 ? '' : 'none';
     }
 
     searchInput.addEventListener('input', (e) => {
-        const searchTerm = e.target.value.toLowerCase();
-        
-        if (e.target.value.length > 0) {
-            clearButton.style.display = 'flex';
-        } else {
-            clearButton.style.display = 'none';
-        }
-
-        updateList(searchTerm);
+        clearButton.style.display = e.target.value.length > 0 ? 'flex' : 'none';
+        updateList(e.target.value.toLowerCase());
     });
 
     clearButton.addEventListener('click', () => {
@@ -312,15 +263,11 @@ function setupSearch() {
     });
 }
 
-// Lógica para gestionar el control segmentado y el almacenamiento
 function setupDelaySelector() {
     chrome.storage.local.get(['selectedDelay'], (result) => {
-        const savedDelay = result.selectedDelay || '0';
+        const savedDelay = result.selectedDelay || '3000'; // 3s por defecto
         delaySelector.querySelectorAll('button').forEach(button => {
-            button.classList.remove('active');
-            if (button.dataset.delay === savedDelay) {
-                button.classList.add('active');
-            }
+            button.classList.toggle('active', button.dataset.delay === savedDelay);
         });
     });
 
@@ -328,8 +275,7 @@ function setupDelaySelector() {
         if (event.target.tagName === 'BUTTON') {
             const selectedDelay = event.target.dataset.delay;
             chrome.storage.local.set({ selectedDelay: selectedDelay });
-            delaySelector.querySelectorAll('button').forEach(button => button.classList.remove('active'));
-            event.target.classList.add('active');
+            delaySelector.querySelectorAll('button').forEach(button => button.classList.toggle('active', button === event.target));
         }
     });
 }
