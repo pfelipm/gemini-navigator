@@ -17,36 +17,27 @@ function getTurnsFromPageWithRetry() {
         function findTurns() {
             attempt++;
             const turns = [];
-            // CAMBIO: Usamos el selector de etiqueta 'user-query', que es semántico y más estable que las clases CSS.
-            // Este componente representa específicamente la entrada del usuario en la conversación.
             const turnContainers = document.querySelectorAll('user-query');
 
             if (turnContainers.length > 0) {
                 turnContainers.forEach((turnContainer, index) => {
-                    // Buscamos el texto dentro del componente. Mantenemos .query-text por ahora,
-                    // pero al estar acotado dentro de <user-query> es mucho más seguro.
                     const queryElement = turnContainer.querySelector('.query-text');
                     
                     if (queryElement) {
-                        // Usamos un atributo data propio para rastrear si ya lo hemos procesado
                         const existingId = turnContainer.dataset.geminiHelperId;
                         const turnId = existingId || `gemini-helper-turn-${Date.now()}-${index}`;
 
                         if (!existingId) {
-                           // Asignamos el ID al componente <user-query> directamente
                            turnContainer.id = turnId;
                            turnContainer.dataset.geminiHelperId = turnId;
                         }
 
-                        // Fix: Clonar y limpiar elementos ocultos (como "You said") antes de extraer texto
                         const clone = queryElement.cloneNode(true);
                         clone.querySelectorAll('.cdk-visually-hidden').forEach(el => el.remove());
                         const fullText = clone.textContent || '';
-                        
-                        // Ahora usamos el texto completo y dejamos que CSS haga el truncado visual con ellipsis
                         const title = fullText.trim();
 
-                        if (title) { // Solo añadimos si hay texto
+                        if (title) {
                             turns.push({ id: turnId, title: title });
                         }
                     }
@@ -63,21 +54,24 @@ function getTurnsFromPageWithRetry() {
 }
 
 /**
- * Función para activar la actualización automática mediante MutationObserver.
- * Vigila si se añaden nuevos elementos <user-query> al DOM.
+ * Función para activar la actualización automática y sincronización de tema.
  */
 function setupAutoRefresh() {
-    // Evitamos duplicar observers si ya está activo en esta pestaña
     if (window.geminiNavigatorObserverActive) return;
+
+    // Detectar tema inicial
+    const isDark = document.body.classList.contains('dark-theme');
+    chrome.runtime.sendMessage({ action: 'theme-changed', theme: isDark ? 'dark' : 'light' });
 
     const observer = new MutationObserver((mutations) => {
         let newTurnDetected = false;
+        let themeChanged = false;
         
         for (const mutation of mutations) {
+            // Detección de nuevos mensajes
             if (mutation.type === 'childList') {
                 mutation.addedNodes.forEach(node => {
-                    // Verificamos si el nodo añadido es un user-query o contiene uno
-                    if (node.nodeType === 1) { // Element node
+                    if (node.nodeType === 1) {
                         if (node.tagName && node.tagName.toLowerCase() === 'user-query') {
                             newTurnDetected = true;
                         } else if (node.querySelector && node.querySelector('user-query')) {
@@ -86,26 +80,32 @@ function setupAutoRefresh() {
                     }
                 });
             }
+            
+            // Detección de cambio de tema (clase en el body)
+            if (mutation.type === 'attributes' && mutation.attributeName === 'class' && mutation.target === document.body) {
+                themeChanged = true;
+            }
         }
 
         if (newTurnDetected) {
-            // Enviamos mensaje al panel lateral para que se actualice
-            // Usamos un debounce simple para no saturar si hay muchos cambios rápidos
             if (!window.geminiRefreshTimeout) {
                 window.geminiRefreshTimeout = setTimeout(() => {
                     chrome.runtime.sendMessage({ action: 'new-turn-detected' });
                     window.geminiRefreshTimeout = null;
-                }, 1000); // Esperamos 1s para asegurar que el contenido del prompt se ha renderizado
+                }, 1000);
             }
+        }
+
+        if (themeChanged) {
+            const isDarkNow = document.body.classList.contains('dark-theme');
+            chrome.runtime.sendMessage({ action: 'theme-changed', theme: isDarkNow ? 'dark' : 'light' });
         }
     });
 
-    // Observamos el body para detectar cambios en el árbol
-    // subtree: true es necesario porque el user-query puede estar anidado
-    observer.observe(document.body, { childList: true, subtree: true });
+    observer.observe(document.body, { childList: true, subtree: true, attributes: true, attributeFilter: ['class'] });
     
     window.geminiNavigatorObserverActive = true;
-    console.log('Gemini Navigator: Auto-refresh observer activado.');
+    console.log('Gemini Navigator: Observer activado (mensajes + tema).');
 }
 
 /**
@@ -115,42 +115,19 @@ function scrollToTurnAndHighlight(turnId) {
     const element = document.getElementById(turnId);
     if (element) {
         element.scrollIntoView({ behavior: 'smooth', block: 'start' });
-
-        // Aplicamos la estructura base (radio de borde, etc.)
         element.classList.add('gemini-helper-highlight');
 
-        // Aplicamos la animación mediante Web Animations API (WAAPI) refinada
-        // Usamos clip-path para recortar sutilmente la base y evitar que toque el icono de respuesta
         const animation = element.animate([
-            { 
-                backgroundColor: 'rgba(177, 151, 252, 0)', 
-                boxShadow: '-10px 0 0 0 transparent, 0 0 0 0 transparent',
-                clipPath: 'inset(0 0 0 -20px)'
-            },
-            { 
-                backgroundColor: 'rgba(177, 151, 252, 0.15)', 
-                boxShadow: '-10px 0 0 0 #B197FC, 0 0 0 2px rgba(177, 151, 252, 0.2)',
-                clipPath: 'inset(0 0 4px -20px)', // Recorte de 4px en la base
-                offset: 0.1 
-            },
-            { 
-                backgroundColor: 'rgba(177, 151, 252, 0.12)', 
-                boxShadow: '-10px 0 0 0 #B197FC, 0 0 0 2px rgba(177, 151, 252, 0.2)',
-                clipPath: 'inset(0 0 4px -20px)',
-                offset: 0.8 
-            },
-            { 
-                backgroundColor: 'rgba(177, 151, 252, 0)', 
-                boxShadow: '-10px 0 0 0 transparent, 0 0 0 0 transparent',
-                clipPath: 'inset(0 0 0 -20px)'
-            }
+            { backgroundColor: 'rgba(177, 151, 252, 0)', boxShadow: '-10px 0 0 0 transparent, 0 0 0 0 transparent', clipPath: 'inset(0 0 0 -20px)' },
+            { backgroundColor: 'rgba(177, 151, 252, 0.15)', boxShadow: '-10px 0 0 0 #B197FC, 0 0 0 2px rgba(177, 151, 252, 0.2)', clipPath: 'inset(0 0 4px -20px)', offset: 0.1 },
+            { backgroundColor: 'rgba(177, 151, 252, 0.12)', boxShadow: '-10px 0 0 0 #B197FC, 0 0 0 2px rgba(177, 151, 252, 0.2)', clipPath: 'inset(0 0 4px -20px)', offset: 0.8 },
+            { backgroundColor: 'rgba(177, 151, 252, 0)', boxShadow: '-10px 0 0 0 transparent, 0 0 0 0 transparent', clipPath: 'inset(0 0 0 -20px)' }
         ], {
             duration: 3000,
             easing: 'ease-in-out',
             fill: 'forwards'
         });
 
-        // Limpiamos la clase cuando termine la animación
         setTimeout(() => {
             element.classList.remove('gemini-helper-highlight');
         }, 3100);
@@ -166,7 +143,6 @@ async function buildIndex(scrollToTurnId = null, existingTurnIds = new Set()) {
     refreshButton.title = 'Cargando peticiones...';
     loadingMessage.style.display = 'none';
 
-    // Limpiamos el filtro al recargar para evitar confusiones
     const searchInput = document.getElementById('search-input');
     const listHeaderContainer = document.getElementById('list-header-container');
 
@@ -180,13 +156,11 @@ async function buildIndex(scrollToTurnId = null, existingTurnIds = new Set()) {
             throw new Error("No se pudo encontrar una pestaña activa.");
         }
 
-        // 1. Inyectamos y activamos el Observer si no lo está ya
         await chrome.scripting.executeScript({
             target: { tabId: tab.id },
             function: setupAutoRefresh
         });
 
-        // 2. Obtenemos los turnos
         const results = await chrome.scripting.executeScript({
             target: { tabId: tab.id },
             function: getTurnsFromPageWithRetry
@@ -195,7 +169,6 @@ async function buildIndex(scrollToTurnId = null, existingTurnIds = new Set()) {
         const turns = results[0].result;
 
         if (turns && turns.length > 0) {
-            // Añadimos la cabecera visual de "Recientes"
             const header = document.createElement('div');
             header.className = 'list-header';
             header.textContent = 'Recientes';
@@ -205,14 +178,13 @@ async function buildIndex(scrollToTurnId = null, existingTurnIds = new Set()) {
             turns.forEach((turn, index) => {
                 const li = document.createElement('li');
                 li.textContent = turn.title;
-                li.title = turn.title; // Tooltip con el texto completo
+                li.title = turn.title;
                 li.dataset.turnId = turn.id;
 
                 if (existingTurnIds.size > 0 && !existingTurnIds.has(turn.id)) {
                     li.classList.add('new-turn-highlight');
                 }
 
-                // CAMBIO CLAVE: Activamos la recarga para los 2 últimos elementos.
                 if (index >= turns.length - 2 && turns.length > 1) {
                     li.addEventListener('click', async () => {
                         const selectedDelay = parseInt(delaySelector.querySelector('.active').dataset.delay, 10);
@@ -253,7 +225,6 @@ async function buildIndex(scrollToTurnId = null, existingTurnIds = new Set()) {
                 turnList.appendChild(li);
             });
 
-            // Si hay un filtro activo, lo reaplicamos
             if (searchInput && searchInput.value) {
                 searchInput.dispatchEvent(new Event('input'));
             }
@@ -285,9 +256,14 @@ async function buildIndex(scrollToTurnId = null, existingTurnIds = new Set()) {
 // Listener para mensajes desde el script de contenido (Observer)
 chrome.runtime.onMessage.addListener((message, sender, sendResponse) => {
     if (message.action === 'new-turn-detected') {
-        // Obtenemos los IDs actuales para resaltar solo el nuevo
         const currentTurnIds = new Set(Array.from(document.querySelectorAll('#turn-list li')).map(item => item.dataset.turnId));
         buildIndex(null, currentTurnIds);
+    } else if (message.action === 'theme-changed') {
+        if (message.theme === 'dark') {
+            document.body.classList.add('dark-theme');
+        } else {
+            document.body.classList.remove('dark-theme');
+        }
     }
 });
 
@@ -311,7 +287,6 @@ function setupSearch() {
             }
         });
 
-        // Ocultar cabecera "Recientes" si no hay resultados o si estamos filtrando (opcional)
         if (listHeaderContainer.firstChild) {
             listHeaderContainer.firstChild.style.display = (visibleCount > 0) ? '' : 'none';
         }
@@ -320,7 +295,6 @@ function setupSearch() {
     searchInput.addEventListener('input', (e) => {
         const searchTerm = e.target.value.toLowerCase();
         
-        // Mostrar/ocultar botón 'X'
         if (e.target.value.length > 0) {
             clearButton.style.display = 'flex';
         } else {
@@ -334,7 +308,7 @@ function setupSearch() {
         searchInput.value = '';
         searchInput.focus();
         clearButton.style.display = 'none';
-        updateList(''); // Restaurar lista completa
+        updateList('');
     });
 }
 
@@ -362,7 +336,7 @@ function setupDelaySelector() {
 
 document.addEventListener('DOMContentLoaded', () => {
     setupDelaySelector();
-    setupSearch(); // Inicializamos el buscador
+    setupSearch(); 
     buildIndex();
 });
 refreshButton.addEventListener('click', () => buildIndex());
