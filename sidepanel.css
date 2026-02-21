@@ -292,11 +292,11 @@ header {
 
 /* Estilo para resaltar las nuevas conversaciones cargadas */
 .new-turn-highlight {
-    animation: fadeInHighlight 3s ease-out;
+    animation: fadeInHighlight 5s ease-out;
 }
 
 @keyframes fadeInHighlight {
-    0% {
+    0%, 30% {
         background-color: var(--highlight-new);
         border-color: var(--highlight-new-border);
     }
