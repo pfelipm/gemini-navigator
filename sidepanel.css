@@ -15,7 +15,7 @@
     --highlight-new-border: #fff59d;
 }
 
-/* Redefinición de variables para Modo Oscuro */
+/* Redefinición de variables para Modo Oscuro (clase explícita) */
 .dark-theme {
     --bg-color: #131314;
     --header-bg: #131314;
@@ -30,6 +30,25 @@
     --footer-text: #c4c7c5;
     --highlight-new: #3c3b2f;
     --highlight-new-border: #4d4b3a;
+}
+
+/* Soporte automático para modo oscuro del sistema (fallback) */
+@media (prefers-color-scheme: dark) {
+    :root:not(.light-theme-forced) {
+        --bg-color: #131314;
+        --header-bg: #131314;
+        --card-bg: #1e1f20;
+        --text-primary: #e3e3e3;
+        --text-secondary: #c4c7c5;
+        --border-color: #444746;
+        --accent-blue: #a8c7fa;
+        --accent-hover: #2b2c2d;
+        --search-bg: #2b2c2d;
+        --search-focus-bg: #1e1f20;
+        --footer-text: #c4c7c5;
+        --highlight-new: #3c3b2f;
+        --highlight-new-border: #4d4b3a;
+    }
 }
 
 /* Estilos generales para el cuerpo del panel lateral */
