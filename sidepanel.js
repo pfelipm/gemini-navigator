@@ -6,7 +6,7 @@ const refreshButton = document.getElementById('refresh-button');
 const delaySelector = document.getElementById('delay-selector');
 
 let isBuilding = false; 
-let panelWindowId = null; // ID de la ventana a la que pertenece este panel
+let panelWindowId = null; 
 
 /**
  * Función inyectada: Extraer turnos.
@@ -95,7 +95,7 @@ function setupAutoRefresh() {
 }
 
 /**
- * Función inyectada: Scroll y resaltado.
+ * Esta función se inyecta para hacer scroll y resaltar el turno.
  */
 function scrollToTurnAndHighlight(turnId) {
     const element = document.getElementById(turnId);
@@ -136,6 +136,7 @@ async function buildIndex(targetIndexFromEnd = null, existingTurnIds = new Set()
 
     refreshButton.disabled = true;
     refreshButton.classList.add('loading-in-progress');
+    refreshButton.title = 'Cargando peticiones...';
     loadingMessage.style.display = 'none';
 
     try {
@@ -144,6 +145,7 @@ async function buildIndex(targetIndexFromEnd = null, existingTurnIds = new Set()
             throw new Error("No en Gemini");
         }
 
+        // Sincronización de TEMA inicial forzada antes de pintar
         const themeResult = await chrome.scripting.executeScript({
             target: { tabId: tab.id },
             function: getGeminiTheme
@@ -225,37 +227,42 @@ async function buildIndex(targetIndexFromEnd = null, existingTurnIds = new Set()
 }
 
 // Listener para mensajes
-chrome.runtime.onMessage.addListener(async (message, sender, sendResponse) => {
-    if (!panelWindowId) {
-        const win = await chrome.windows.getCurrent();
-        panelWindowId = win.id;
-    }
-    
-    // FILTRADO DE SEGURIDAD POR VENTANA
-    if (message.windowId && message.windowId !== panelWindowId) return;
+chrome.runtime.onMessage.addListener((message, sender, sendResponse) => {
+    // Definimos una función interna asíncrona para manejar el filtrado
+    const handleMessage = async () => {
+        if (!panelWindowId) {
+            const win = await chrome.windows.getCurrent();
+            panelWindowId = win.id;
+        }
+        
+        // Aislamiento de ventana
+        if (message.windowId && message.windowId !== panelWindowId) return;
 
-    // FILTRADO DE SEGURIDAD POR PESTAÑA ACTIVA (Evita contagios del MutationObserver)
-    if (message.action === 'new-turn-detected' || message.action === 'theme-changed') {
-        const tabs = await chrome.tabs.query({ active: true, windowId: panelWindowId });
-        const activeTab = tabs[0];
-        // Si el mensaje viene de un script de contenido (sender.tab), 
-        // solo le hacemos caso si coincide con la pestaña que estamos viendo.
-        if (sender.tab && (!activeTab || sender.tab.id !== activeTab.id)) return;
-    }
+        // Aislamiento de pestaña activa (para MutationObserver)
+        if (message.action === 'new-turn-detected' || message.action === 'theme-changed') {
+            const tabs = await chrome.tabs.query({ active: true, windowId: panelWindowId });
+            const activeTab = tabs[0];
+            if (sender.tab && (!activeTab || sender.tab.id !== activeTab.id)) return;
+        }
 
-    if (message.action === 'new-turn-detected' || message.action === 'refresh-for-tab') {
-        if (isBuilding && message.action === 'new-turn-detected') return;
-        const currentTurnIds = new Set(Array.from(document.querySelectorAll('#turn-list li')).map(item => item.dataset.turnId));
-        buildIndex(null, currentTurnIds);
-    } else if (message.action === 'clear-panel') {
-        turnList.innerHTML = '';
-        document.getElementById('list-header-container').innerHTML = '';
-        loadingMessage.textContent = 'Abre una conversación en Gemini para ver el índice.';
-        loadingMessage.style.display = 'block';
-        applyTheme('system');
-    } else if (message.action === 'theme-changed') {
-        applyTheme(message.theme);
-    }
+        if (message.action === 'new-turn-detected' || message.action === 'refresh-for-tab') {
+            if (isBuilding) return;
+            if (message.action === 'refresh-for-tab') await new Promise(r => setTimeout(r, 100));
+            const currentTurnIds = new Set(Array.from(turnList.querySelectorAll('li')).map(item => item.dataset.turnId));
+            buildIndex(null, currentTurnIds);
+        } else if (message.action === 'clear-panel') {
+            turnList.innerHTML = '';
+            document.getElementById('list-header-container').innerHTML = '';
+            loadingMessage.textContent = 'Abre una conversación en Gemini para ver el índice.';
+            loadingMessage.style.display = 'block';
+            applyTheme('system');
+        } else if (message.action === 'theme-changed') {
+            applyTheme(message.theme);
+        }
+    };
+
+    handleMessage();
+    return true; 
 });
 
 // Lógica de búsqueda y filtro
