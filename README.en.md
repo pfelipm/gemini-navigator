@@ -21,12 +21,14 @@ Clicking on the extension icon opens a side panel (`Side Panel`) that displays a
 - **🚀 Quick Navigation:** Click on any prompt in the index for the main Gemini window to scroll smoothly to that question, highlighting it visually for a moment.
 - **🔍 Instant Filtering:** Use the top search box to filter prompts in real-time. Includes a quick-clear button and is ideal for finding specific topics in long conversations without reading the entire index.
 - **⚡ Auto-Refresh:** Forget about reloading! The extension automatically detects when you send a new message to Gemini and instantly updates the index to include your new prompt.
+- **📁 Intelligent Isolation (experimental):** The panel attempts to automatically sync with the active tab. Due to Chrome technical limitations, this feature is experimental and brief visual glitches may occur when quickly switching between tabs or windows.
 - **📜 History Loading:** Gemini loads older conversations as you scroll up. If you click on one of the last prompts in the index, the extension smartly waits a few seconds (3s by default) to allow Gemini to load the previous content before jumping to it.
 
 ## Key Features
 
 *   **Automatic Indexing:** Generates a clean and readable list of your prompts.
 *   **Integrated Search:** Filter by keywords with a quick-clear function.
+*   **Session Isolation:** Independent management of indices per tab and window (experimental).
 *   **Robust Design:** Uses semantic selectors (`<user-query>`) and reverse-index anchoring to ensure scroll stability and future compatibility.
 *   **Native Aesthetics:** Visually integrates with Google's design, including professional lavender highlighting and dark mode (natively synced with Gemini's application theme).
 *   **Privacy:** All processing is done locally in your browser. No data is sent to external servers.
