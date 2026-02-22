@@ -39,6 +39,7 @@ Clicking on the extension icon opens a side panel (`Side Panel`) that displays a
 - **Side Panel API:** The main interface is displayed using the Chrome `Side Panel API`.
 - **MutationObserver:** Used to efficiently and reactively detect DOM changes without relying on polling.
 - **Web Animations API (WAAPI):** Employed to manage the visual highlighting of turns in a fluid and professional manner, ensuring a smooth fade-out that doesn't interfere with Gemini's internal styles.
+- **Session Isolation:** Implements a `windowId` and `tabId` filtering system to ensure the side panel only reacts to events from its own active tab, preventing data contamination between multiple Gemini windows or conversations.
 - **Scripting API:** Scripts are safely injected into the Gemini page to analyze the conversation structure and perform scrolling.
 - **Permissions:**
     - `sidePanel`: To display the interface.
